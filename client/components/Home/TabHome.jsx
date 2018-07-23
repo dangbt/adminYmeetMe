@@ -45,6 +45,21 @@ class TabHome extends React.Component {
       listImage: []
     };
   }
+  handleDelete = (userDel) => {
+    _helper.fetchAPI(
+      '/users',{_id: userDel},[], 'DELETE'
+    )
+    .then((response) => {
+      const { data, status } = response;
+      if (status == 200) {
+        this.handleShowNotification(data, 'info');
+      } else {
+        this.handleShowNotification('Delete fail !!', 'danger')
+      }
+      this.getUser();
+    })
+
+  }
   getListLikeMe = () => {
     _helper.fetchGET(
       '/usersLikeMe', []
@@ -77,7 +92,6 @@ class TabHome extends React.Component {
       .then((response) => {
         const { data, status } = response;
         if (status == 200) {
-          debugger
           this.setState({ listUser: data })
         }
       })
@@ -175,18 +189,10 @@ class TabHome extends React.Component {
         </Nav>
         <TabContent activeTab={this.state.activeTab} style={{minHeight: '520px'}} >
           <TabPane tabId="1">
-            <Row>
-              <Col >
-                <ListItem  listUser={listUser} handleShowNotification={this.handleShowNotification} user={user} />
-              </Col>
-            </Row>
+                <ListItem  listUser={listUser} handleDelete={this.handleDelete} handleShowNotification={this.handleShowNotification} user={user} />
           </TabPane>
           <TabPane tabId="2" >
-          <Row>
-              <Col >
                 <NewImage handleShowNotification={this.handleShowNotification} getAllImage={this.getAllImage} listImage={listImage} user={user} likeUser={this.likeUser} />
-              </Col>
-            </Row>
           </TabPane>
         </TabContent>
         <Notification show={show} message={message} type={type} />

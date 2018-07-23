@@ -6,6 +6,7 @@ import {
   CardSubtitle, CardBody, CardGroup
 } from 'reactstrap';
 import { Table, Button } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { _helper } from '../../Function/API';
 import SearchInput, { createFilter } from 'react-search-input';
 import Notification from '../../Notification/index.jsx';
@@ -24,8 +25,23 @@ export default class ListItem extends Component {
     super(props);
     this.state = {
       searchTerm: '',
+      modal: false,
+      userDel: ''
     }
   }
+  
+  toggle = (userDel) => {
+    this.setState({
+      modal: !this.state.modal, userDel: userDel
+    });
+  }
+  deleteUser = () => {
+    const { userDel } = this.state;
+    debugger
+    this.props.handleDelete(userDel)
+    this.toggle();
+  }
+
 
   likeUser = (userID) => {
     _helper.fetchAPI(
@@ -49,10 +65,11 @@ export default class ListItem extends Component {
     const {  searchTerm } = this.state;
     const { listUser, user } = this.props;
     const filteredUser = listUser.filter(createFilter(searchTerm, KEYS_TO_FILTERS))
+    
     return (
       <div>
         <SearchInput className="search-input" onChange={this.searchUpdated}/>
-        <Table responsive hover bordered >
+        <Table hover bordered >
         <thead>
           <tr>
             <th>#</th>
@@ -72,8 +89,8 @@ export default class ListItem extends Component {
            <td>
               <p>{item.info && item.info.fullName}</p>
               <img src={item.avatar ? item.avatar : '../../../assets/default-avatar.png'} style={{width: 100, height: 100}} />
-              {/* <p>Username: {item.username && item.username} </p>
-              <p>Password: {item.password && item.password} </p> */}
+              <p>Username: {item.username && item.username} </p>
+              <p>Password: {item.password && item.password} </p>
               
            </td>
            <td>
@@ -98,7 +115,7 @@ export default class ListItem extends Component {
            </td>
            <td>
              {item.hobbies.length >0 ? item.hobbies.map((item, i) => (
-               <p>{i+1}.{' '}{item.content}</p>
+               <p key={i} >{i+1}.{' '}{item.content}</p>
              ))
              :
              'No data'
@@ -106,20 +123,28 @@ export default class ListItem extends Component {
            </td>
            <td>
              {item.friends.length > 0 ? item.friends.map((item, i) => (
-               <p>{i+1}.{' '}{item}</p>
+               <p key={i} >{i+1}.{' '}{item.info.fullName}</p>
              ))
              :
              'No data'
             }
              
            </td>
-           <td><Button outline color='danger'>Xoá</Button></td>
+           <td><Button outline color='danger' onClick={() => this.toggle(item._id)} >Xoá</Button></td>
          </tr>
         ))
         }
         </tbody>
         </Table>
-          
+        <Modal isOpen={this.state.modal} >
+          <ModalBody>
+            Bạn có chắc muốn xoá?
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.deleteUser}>Yes</Button>{' '}
+            <Button color="secondary" onClick={() => this.toggle()}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     )
   }

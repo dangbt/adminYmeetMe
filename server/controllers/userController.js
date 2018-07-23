@@ -8,7 +8,10 @@ const bcrypt = require('bcrypt');
 
 var users = {
 	getAll: (req, res) => {
-		User.find({}).populate({ path: 'hobbies', select: 'content' }).exec((err, users) => {
+		User.find({})
+		.populate({ path: 'hobbies', select: 'content' })
+		.populate({ path: 'friends', select: 'info' })
+		.exec((err, users) => {
 			if (err)
 				res.send(err);
 			res.json(users);
